@@ -20,12 +20,10 @@ contract PetShop {
 
     function buyPet(uint256 amount, uint256 _petId) payable public {
         require(pets[_petId].exists, "Pet does not exist");
-        require(pets[_petId].minAmount <= amount, "buy amount cannot be less than min amount");
-        console.log(msg.sender);
-        console.log(pets[_petId].petOwner);
-        console.log(amount);
-        console.log(daiToken.allowance(msg.sender, pets[_petId].petOwner));
-        daiToken.transferFrom(msg.sender, pets[_petId].petOwner, amount);
+        require(pets[_petId].minAmount + 1 <= amount, "buy amount cannot be less than min amount");
+
+        daiToken.transferFrom(msg.sender, address(this), amount);
+        daiToken.transfer(pets[_petId].petOwner, amount - 1);
 
         emit PetSold(pets[_petId].petOwner, msg.sender, amount);
     }

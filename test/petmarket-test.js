@@ -38,12 +38,12 @@ describe('PetShop', function() {
 
         daiAccount = await ethers.getSigner(accountAddress);
         let dai = new ethers.Contract(daiAddress, IERC20.abi, daiAccount);
-        await dai.connect(daiAccount).approve(owner.address, ethers.utils.parseEther("22"));
+        await dai.connect(daiAccount).approve(petMarket.address, ethers.utils.parseEther("22"));
         m = await dai.balanceOf(daiAccount.address);
         // console.log(m.toNumber());
         // (await dai.allowance(daiAccount.address, owner.address)).toNumber();
 
-        await expect(petMarket.connect(daiAccount).buyPet(21, 1)).to
+        await expect(petMarket.connect(daiAccount).buyPet(22, 1)).to
             .emit(petMarket, 'PetSold').withArgs(owner.address, daiAccount.address, 22);
     });
 })
