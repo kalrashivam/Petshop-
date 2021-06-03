@@ -1,10 +1,8 @@
 const { expect } = require("chai");
-// const { contract } = require('@openzeppelin/test-environment');
 const IERC20 = require('@openzeppelin/contracts/build/contracts/IERC20.json');
 
 describe('PetShop', function() {
-    let petMarket;
-    const accountAddress = '0x16463c0fdb6ba9618909f5b120ea1581618c1b9e';
+    const accountAddress = '0x61a6b1eda7e514d4d6259aa11fd227118386ed84';
     const daiAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
 
     before(async () => {
@@ -19,9 +17,9 @@ describe('PetShop', function() {
                     .wait()).events[0].args['petId'].toNumber(), 'wrong PetId')
             .to.equal(1);
 
-        await expect(petMarket.connect(owner).addPet(20),
+        await expect(petMarket.connect(addr1).addPet(20),
                      'does not emit event')
-            .to.emit(petMarket, 'PetAdded').withArgs(owner.address, 20, 2)
+            .to.emit(petMarket, 'PetAdded').withArgs(addr1.address, 20, 2)
     });
 
     it("Can not be less than the min Amount", async function() {
@@ -38,7 +36,14 @@ describe('PetShop', function() {
             params: [accountAddress]
         })
 
-        daiAccount = ethers.provider.getSigner(accountAddress);
+        daiAccount = await ethers.getSigner(accountAddress);
         let dai = new ethers.Contract(daiAddress, IERC20.abi, daiAccount);
+        await dai.connect(daiAccount).approve(owner.address, ethers.utils.parseEther("22"));
+        m = await dai.balanceOf(daiAccount.address);
+        // console.log(m.toNumber());
+        // (await dai.allowance(daiAccount.address, owner.address)).toNumber();
+
+        await expect(petMarket.connect(daiAccount).buyPet(21, 1)).to
+            .emit(petMarket, 'PetSold').withArgs(owner.address, daiAccount.address, 22);
     });
 })
